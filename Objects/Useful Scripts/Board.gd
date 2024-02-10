@@ -18,21 +18,12 @@ var affectedColumns : Dictionary
 func _init(boardToCopyFrom : Board = null):
 	# Guard clause
 	if(boardToCopyFrom != null):
-		board = boardToCopyFrom.board
+		board = boardToCopyFrom.board.duplicate(true)
 		return
 	
 	# Creates an array of size Y and size X of integers
-	for y in range(sizeY):
-		board.append(createArray(sizeX, 0))
+	board = MatrixOperations.createMatrix(sizeX, sizeY)
 
-# Function to make _ready less bloated
-func createArray(size : int, value : Variant) -> Array:
-	var array : Array
-	
-	for i in range(size):
-		array.append(value)
-	
-	return array
 
 # Updates and removes lines needing to be removed
 func updateBoard():
@@ -48,9 +39,12 @@ func updateBoard():
 		if(isColumnFull(x)):
 			columnsToClear.append(x)
 	
+	for row in rowsToClear:
+		MatrixOperations.clearRow(board, row)
 	
-	clearRows(rowsToClear)
-	clearColumns(columnsToClear)
+	for column in columnsToClear:
+		MatrixOperations.clearColumn(board, column)
+	
 	
 	affectedRows.clear()
 	affectedColumns.clear()
@@ -70,18 +64,6 @@ func isColumnFull(x : int) -> bool:
 			return false
 	
 	return true
-
-# Functions for clearing lines
-func clearRows(rows : Array[int]):
-	for y in rows:
-		for x in range(sizeX):
-			board[y][x] = 0
-
-
-func clearColumns(columns : Array[int]):
-	for x in columns:
-		for y in range(sizeY):
-			board[y][x] = 0
 
 # Get the cell at position
 func getCellAt(x : int, y : int):
