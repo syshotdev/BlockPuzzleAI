@@ -2,10 +2,10 @@ extends Node
 
 class_name Board
 
-const sizeX = 8
-const sizeY = 8
+const sizeX = 3
+const sizeY = 3
 
-var board : Array[Array]
+var board : Array
 # Current thought is something like 
 # It's a two dimentional array, with the color from an enum in GameColors every cell.
 
@@ -23,10 +23,10 @@ func _init(boardToCopyFrom : Board = null):
 	
 	# Creates an array of size Y and size X of integers
 	for y in range(sizeY):
-		board.append(createArray(sizeX, y))
+		board.append(createArray(sizeX, 0))
 
 # Function to make _ready less bloated
-func createArray(size : int, value : int) -> Array:
+func createArray(size : int, value : Variant) -> Array:
 	var array : Array
 	
 	for i in range(size):
@@ -86,7 +86,6 @@ func clearColumns(columns : Array[int]):
 # Get the cell at position
 func getCellAt(x : int, y : int):
 	return board[y][x]
-
 
 # Get the cell at position
 func setCellAt(x : int, y : int, number : int):
