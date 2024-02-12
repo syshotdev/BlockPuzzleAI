@@ -60,20 +60,19 @@ func _init():
 
 
 func calculateRotatedBlocks():
-	for block0 in blockTypes:
+	for block in blockTypes:
 		# Array of blocks to be put into rotatedBlocks
 		var blockRotateds : Array
+		var lastBlock : Array = block
 		
-		blockRotateds.append(block0)
-		# Vars = block + degrees rotated
-		var block90 := MatrixOperations.rotateMatrixClockwise(block0)
-		if(block0 != block90):
-			blockRotateds.append(block90)
-		var block180 := MatrixOperations.rotateMatrixClockwise(block90)
-		if(block0 != block180):
-			blockRotateds.append(block90)
-		var block270 := MatrixOperations.rotateMatrixClockwise(block180)
-		if(block0 != block270):
-			blockRotateds.append(block90)
 		
-		rotatedBlocks[block0] = blockRotateds
+		for i in range(3):
+			var rotatedBlock := MatrixOperations.rotateMatrixClockwise(lastBlock)
+			if(rotatedBlock != lastBlock):
+				blockRotateds.append(rotatedBlock)
+				lastBlock = rotatedBlock # Set the last block
+		
+		# Append the original block (Because it is a block)
+		blockRotateds.append(block)
+		
+		rotatedBlocks[block] = blockRotateds
