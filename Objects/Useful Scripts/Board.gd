@@ -2,8 +2,8 @@ extends Node
 
 class_name Board
 
-const sizeX = 3
-const sizeY = 3
+const sizeX = 8
+const sizeY = 8
 
 var board : PackedByteArray
 # Current thought is something like 
@@ -125,23 +125,22 @@ func clearColumn(column : int):
 	for y in range(sizeY):
 		setBareCell(column, y, 0)
 
-
 # Get the cell at position
 func getCellAt(x : int, y : int):
 	# 1D array but we act like it 2d
-	var index : int = x + (y * sizeY)
+	var index : int = x + (y * sizeX)
 	return board[index]
 
 # Set cell at position with also recording what changed
 func setCellAt(x : int, y : int, number : int):
-	var index : int = x + (y * sizeY)
+	var index : int = x + (y * sizeX)
 	board[index] = number
 	
 	# For efficiently clearing lines later
 	affectedRows[y] = number
 	affectedColumns[x] = number
 
-# Sets a cell without all the random stuff
+# Sets a cell without all the bloat
 func setBareCell(x : int, y : int, number : int):
-	var index : int = x + (y * sizeY)
+	var index : int = x + (y * sizeX)
 	board[index] = number

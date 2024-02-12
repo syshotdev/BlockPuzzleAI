@@ -10,7 +10,7 @@ func _init():
 	blocks = Block.new()
 	
 	var memory_before = OS.get_static_memory_usage()
-	var score := maxmax(board, 2)
+	var score := maxmax(board, 3)
 	var memory_used : float = OS.get_static_memory_usage() - memory_before
 	memory_used = memory_used / 1000 / 1000
 	print(str(memory_used) + " Mb")
@@ -22,6 +22,7 @@ func maxmax(boardState : Board, depth : int) -> int:
 	if(depth <= 0):
 		return boardState.calculateScore()
 	
+	boardState.updateBoard()
 	
 	# Get all boards.
 	var boards := getPossibleBoards(boardState)
@@ -29,7 +30,6 @@ func maxmax(boardState : Board, depth : int) -> int:
 	var bestScore := -INF
 	for board in boards:
 		var boardScore := maxmax(board, depth - 1)
-		board.updateBoard()
 		bestScore = max(boardScore, bestScore)
 		
 		board.queue_free()

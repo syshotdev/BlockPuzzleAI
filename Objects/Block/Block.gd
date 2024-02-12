@@ -39,17 +39,17 @@ const shape_S := [
 
 
 var blockTypes = [
-	#shape_1x1,
-	#shape_2x2,
+	shape_1x1,
+	shape_2x2,
 	shape_3x3,
-	#shape_perfectL,
-	#shape_L,
-	#shape_T,
-	#shape_Z,
-	#shape_S,
-	#shape_Ix3,
-	#shape_Ix4,
-	#Sshape_Ix5
+	shape_perfectL,
+	shape_L,
+	shape_T,
+	shape_Z,
+	shape_S,
+	shape_Ix3,
+	shape_Ix4,
+	shape_Ix5
 	]
 
 
