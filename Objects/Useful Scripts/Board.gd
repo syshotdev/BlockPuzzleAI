@@ -9,7 +9,7 @@ var board : Array
 # Current thought is something like 
 # It's a two dimentional array, with the color from an enum in GameColors every cell.
 
-# Keys: Row/Column, Value: Coloriqhrslkfdatvuhgfufiyfvxs,kkgljycc
+# Keys: Row/Column, Value: Colori
 var affectedRows : Dictionary
 var affectedColumns : Dictionary
 
@@ -23,6 +23,22 @@ func _init(boardToCopyFrom : Board = null):
 	
 	# Creates an array of size Y and size X of integers
 	board = MatrixOperations.createMatrix(sizeX, sizeY)
+
+
+# Places the block on the top left corner, 
+# aka pos = top left corner of block
+func placeBlock(pos : Vector2i, block : Array):
+	var size : Vector2i = Vector2(block[0].size(), block.size())
+	var center : Vector2 = size/2
+	
+	for y in range(pos.y, size.y + pos.y):
+		for x in range(pos.x, size.x + pos.x):
+			# If the cell at coords == 0, don't place.
+			if(block[y][x] == 0):
+				continue
+			
+			setCellAt(x, y, 1)
+
 
 
 # Updates and removes lines needing to be removed
@@ -48,6 +64,14 @@ func updateBoard():
 	
 	affectedRows.clear()
 	affectedColumns.clear()
+
+# Checks if board full of non-zeros
+func isBoardFull():
+	for row in board:
+		for cell in row:
+			if(cell == 0):
+				return false
+	return true
 
 # Returns true or false if row is full (Full of non-zeros)
 func isRowFull(y : int) -> bool:
