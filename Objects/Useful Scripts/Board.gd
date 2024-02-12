@@ -2,8 +2,8 @@ extends Node
 
 class_name Board
 
-const sizeX = 8
-const sizeY = 8
+const sizeX = 3
+const sizeY = 3
 
 var board : PackedByteArray
 # Current thought is something like 
@@ -39,9 +39,7 @@ func placeBlock(pos : Vector2i, block : Array):
 			setCellAt(pos.x + x, pos.y + y, 1)
 
 # Updates and removes lines needing to be removed, and gives score :)
-func updateBoard() -> float:
-	var score : float
-	
+func updateBoard():
 	# Arrays of values that need to be cleared
 	var rowsToClear : PackedByteArray = []
 	var columnsToClear : PackedByteArray = []
@@ -56,16 +54,32 @@ func updateBoard() -> float:
 	
 	for row in rowsToClear:
 		clearRow(row)
-		score += sizeX
 	
 	for column in columnsToClear:
 		clearColumn(column)
-		score += sizeY
 	
 	
 	affectedRows.clear()
 	affectedColumns.clear()
+
+# Calculates the score without removing lines.
+func calculateScore() -> float:
+	var score : float = 0
 	
+	# Arrays of values that need to be cleared
+	var rowsToClear : PackedByteArray = []
+	var columnsToClear : PackedByteArray = []
+	
+	for y in affectedRows.keys():
+		if(isRowFull(y)):
+			rowsToClear.append(y)
+	
+	for x in affectedColumns.keys():
+		if(isColumnFull(x)):
+			columnsToClear.append(x)
+	
+	score += rowsToClear.size() * sizeY
+	score += columnsToClear.size() * sizeX
 	return score
 
 # Checks if the block is placable at that place. (Top left = posStart.)
@@ -84,7 +98,6 @@ func isPlaceable(posToPlace : Vector2i, block : Array):
 				return false
 	
 	return true
-
 
 # Returns true or false if row is full (Full of non-zeros)
 func isRowFull(y : int) -> bool:

@@ -20,7 +20,7 @@ func _init():
 func maxmax(boardState : Board, depth : int) -> int:
 	# If depth reached, stop calculating.
 	if(depth <= 0):
-		return boardState.updateBoard()
+		return boardState.calculateScore()
 	
 	
 	# Get all boards.
@@ -28,11 +28,9 @@ func maxmax(boardState : Board, depth : int) -> int:
 	
 	var bestScore := -INF
 	for board in boards:
-		var thisBoardScore := maxmax(board, depth - 1)
-		
-		# Get best board
-		if(thisBoardScore > bestScore):
-			bestScore = thisBoardScore
+		var boardScore := maxmax(board, depth - 1)
+		board.updateBoard()
+		bestScore = max(boardScore, bestScore)
 		
 		board.queue_free()
 	
@@ -58,9 +56,9 @@ func getBoardsFromBlock(originBoard : Board, block : Array) -> Array[Board]:
 	var maxPos : Vector2i = (boardSize - blockSize)
 	
 	# From 0 to maxPos, every cell, check if can place and place block there.
-	for y in range(maxPos.y):
-		for x in range(maxPos.x):
-			var actualPos := Vector2i(x, y) #- Vector2i(1, 1)
+	for y in range(maxPos.y + 1):
+		for x in range(maxPos.x + 1):
+			var actualPos := Vector2i(x, y)
 			# If can't place block here don't append new board.
 			if(!originBoard.isPlaceable(actualPos, block)):
 				continue
