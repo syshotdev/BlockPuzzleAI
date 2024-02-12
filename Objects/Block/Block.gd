@@ -40,16 +40,17 @@ const shape_S := [
 
 var blockTypes = [
 	shape_1x1,
-	shape_2x2,
+	#shape_2x2,
 	shape_3x3,
-	shape_perfectL,
-	shape_L,
-	shape_T,
-	shape_Z,
-	shape_S,
-	shape_Ix3,
-	shape_Ix4,
-	shape_Ix5]
+	#shape_perfectL,
+	#shape_L,
+	#shape_T,
+	#shape_Z,
+	#shape_S,
+	#shape_Ix3,
+	#shape_Ix4,
+	#shape_Ix5
+	]
 
 
 var rotatedBlocks : Dictionary # Key: Const block, Value: Array of all rotated blocks (NO DUPLICATES)
@@ -62,17 +63,19 @@ func _init():
 func calculateRotatedBlocks():
 	for block in blockTypes:
 		# Array of blocks to be put into rotatedBlocks
-		var blockRotateds : Array
+		var blockRotateds : Array = []
 		var lastBlock : Array = block
-		
-		
-		for i in range(3):
-			var rotatedBlock := MatrixOperations.rotateMatrixClockwise(lastBlock)
-			if(rotatedBlock != lastBlock):
-				blockRotateds.append(rotatedBlock)
-				lastBlock = rotatedBlock # Set the last block
 		
 		# Append the original block (Because it is a block)
 		blockRotateds.append(block)
+		
+		for i in range(3):
+			var rotatedBlock := MatrixOperations.rotateMatrixClockwise(lastBlock)
+			
+			# If block array doesn't have block, then add it.
+			if(!blockRotateds.has(rotatedBlock)):
+				blockRotateds.append(rotatedBlock)
+				lastBlock = rotatedBlock # Set the last block
+		
 		
 		rotatedBlocks[block] = blockRotateds

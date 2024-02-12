@@ -2,29 +2,33 @@ extends Node
 
 class_name MatrixOperations
 
-enum numDegrees{
-	ZERO,
-	NINETY,
-	ONE_HUNDRED_EIGHTY,
-	TWO_HUNDRED_SEVENTY
-}
+
+
 
 # Copied basically from https://github.com/jpcerrone/PokeTetris
 static func createMatrix(sizeX : int, sizeY : int) -> Array[Array]:
-	var matrix : Array[Array]
+	var matrix : Array[Array] = []
 	
-	# Initializing
 	for y in range(sizeY):
-		var row : Array = []
+		var row : Array[int] = []
 		row.resize(sizeX)
 		row.fill(0)
 		matrix.append(row)
 	
 	return matrix
 
+
+static func createByteArray(sizeX : int, sizeY : int) -> PackedByteArray:
+	var array : PackedByteArray = []
+	
+	array.resize(sizeX * sizeY)
+	array.fill(0)
+	
+	return array
+
 # Rotates clockwise only because math complicated so lazy
 static func rotateMatrixClockwise(matrix : Array) -> Array[Array]:
-	var size : Vector2i = Vector2(matrix[0].size(), matrix.size())
+	var size : Vector2i = Vector2i(matrix[0].size(), matrix.size())
 	var newMatrix := MatrixOperations.createMatrix(size.y, size.x)
 	
 	for x in range(size.y):
@@ -38,6 +42,7 @@ static func rotateMatrixClockwise(matrix : Array) -> Array[Array]:
 static func clearRow(matrix : Array[Array], row : int):
 	for x in range(matrix[row].size()):
 		matrix[row][x] = 0
+		
 
 
 static func clearColumn(matrix : Array[Array], column : int):

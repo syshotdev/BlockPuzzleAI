@@ -5,11 +5,11 @@ class_name Board
 const sizeX = 8
 const sizeY = 8
 
-var board : Array
+var board : PackedByteArray
 # Current thought is something like 
 # It's a two dimentional array, with the color from an enum in GameColors every cell.
 
-# Keys: Row/Column, Value: Colori
+# Keys: Row/Column, Value: Color
 var affectedRows : Dictionary
 var affectedColumns : Dictionary
 
@@ -18,11 +18,11 @@ var affectedColumns : Dictionary
 func _init(boardToCopyFrom : Board = null):
 	# Guard clause
 	if(boardToCopyFrom != null):
-		board = boardToCopyFrom.board.duplicate(true)
+		board = boardToCopyFrom.board.duplicate()
 		return
 	
 	# Creates an array of size Y and size X of integers
-	board = MatrixOperations.createMatrix(sizeX, sizeY)
+	board = MatrixOperations.createByteArray(sizeX, sizeY)
 
 
 # Places the block on the top left corner, 
@@ -38,11 +38,13 @@ func placeBlock(pos : Vector2i, block : Array):
 			
 			setCellAt(pos.x + x, pos.y + y, 1)
 
-# Updates and removes lines needing to be removed
-func updateBoard():
+# Updates and removes lines needing to be removed, and gives score :)
+func updateBoard() -> float:
+	var score : float
+	
 	# Arrays of values that need to be cleared
-	var rowsToClear : Array[int]
-	var columnsToClear : Array[int]
+	var rowsToClear : PackedByteArray = []
+	var columnsToClear : PackedByteArray = []
 	
 	for y in affectedRows.keys():
 		if(isRowFull(y)):
@@ -53,15 +55,18 @@ func updateBoard():
 			columnsToClear.append(x)
 	
 	for row in rowsToClear:
-		MatrixOperations.clearRow(board, row)
+		clearRow(row)
+		score += sizeX
 	
 	for column in columnsToClear:
-		MatrixOperations.clearColumn(board, column)
+		clearColumn(column)
+		score += sizeY
 	
 	
 	affectedRows.clear()
 	affectedColumns.clear()
-
+	
+	return score
 
 # Checks if the block is placable at that place. (Top left = posStart.)
 func isPlaceable(posToPlace : Vector2i, block : Array):
@@ -81,18 +86,10 @@ func isPlaceable(posToPlace : Vector2i, block : Array):
 	return true
 
 
-# Checks if board full of non-zeros
-func isBoardFull():
-	for row in board:
-		for cell in row:
-			if(cell == 0):
-				return false
-	return true
-
 # Returns true or false if row is full (Full of non-zeros)
 func isRowFull(y : int) -> bool:
 	for x in range(sizeX):
-		if(board[y][x] == 0):
+		if(getCellAt(x, y) == 0):
 			return false
 	
 	return true
@@ -100,19 +97,38 @@ func isRowFull(y : int) -> bool:
 # Returns true or false if column is full (Full of non-zeros)
 func isColumnFull(x : int) -> bool:
 	for y in range(sizeY):
-		if(board[y][x] == 0):
+		if(getCellAt(x, y) == 0):
 			return false
 	
 	return true
 
-# Get the cell at position
-func getCellAt(x : int, y : int):
-	return board[y][x]
+
+func clearRow(row : int):
+	for x in range(sizeX):
+		setBareCell(x, row, 0)
+
+
+func clearColumn(column : int):
+	for y in range(sizeY):
+		setBareCell(column, y, 0)
+
 
 # Get the cell at position
+func getCellAt(x : int, y : int):
+	# 1D array but we act like it 2d
+	var index : int = x + (y * sizeY)
+	return board[index]
+
+# Set cell at position with also recording what changed
 func setCellAt(x : int, y : int, number : int):
-	board[y][x] = number
+	var index : int = x + (y * sizeY)
+	board[index] = number
 	
 	# For efficiently clearing lines later
 	affectedRows[y] = number
 	affectedColumns[x] = number
+
+# Sets a cell without all the random stuff
+func setBareCell(x : int, y : int, number : int):
+	var index : int = x + (y * sizeY)
+	board[index] = number
