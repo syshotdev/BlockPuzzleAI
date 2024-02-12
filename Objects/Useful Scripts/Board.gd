@@ -29,17 +29,14 @@ func _init(boardToCopyFrom : Board = null):
 # aka pos = top left corner of block
 func placeBlock(pos : Vector2i, block : Array):
 	var size : Vector2i = Vector2(block[0].size(), block.size())
-	var center : Vector2 = size/2
 	
-	for y in range(pos.y, size.y + pos.y):
-		for x in range(pos.x, size.x + pos.x):
+	for y in range(size.y):
+		for x in range(size.x):
 			# If the cell at coords == 0, don't place.
 			if(block[y][x] == 0):
 				continue
 			
-			setCellAt(x, y, 1)
-
-
+			setCellAt(pos.x + x, pos.y + y, 1)
 
 # Updates and removes lines needing to be removed
 func updateBoard():
@@ -64,6 +61,25 @@ func updateBoard():
 	
 	affectedRows.clear()
 	affectedColumns.clear()
+
+
+# Checks if the block is placable at that place. (Top left = posStart.)
+func isPlaceable(posToPlace : Vector2i, block : Array):
+	var size : Vector2i = Vector2i(block[0].size(), block.size())
+	
+	# For each position in block array, check if board obstructs block with offset
+	for y in range(size.y):
+		for x in range(size.x):
+			# If the cell from block at coords == 0, don't check to see if can place.
+			if(block[y][x] == 0):
+				continue
+			
+			# Offset by posToPlace, because that's where it needs to be placed
+			if(getCellAt(x + posToPlace.x, y + posToPlace.y) != 0):
+				return false
+	
+	return true
+
 
 # Checks if board full of non-zeros
 func isBoardFull():

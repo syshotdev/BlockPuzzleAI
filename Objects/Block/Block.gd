@@ -38,7 +38,7 @@ const shape_S := [
 	[0,1]]
 
 
-const blockTypes = [
+var blockTypes = [
 	shape_1x1,
 	shape_2x2,
 	shape_3x3,
