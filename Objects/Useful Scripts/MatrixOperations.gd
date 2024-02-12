@@ -37,14 +37,3 @@ static func rotateMatrixClockwise(matrix : Array) -> Array[Array]:
 			newMatrix[y][x] = matrix[size.y - x - 1][y]
 	
 	return newMatrix
-
-
-static func clearRow(matrix : Array[Array], row : int):
-	for x in range(matrix[row].size()):
-		matrix[row][x] = 0
-		
-
-
-static func clearColumn(matrix : Array[Array], column : int):
-	for y in range(matrix.size()):
-		matrix[y][column] = 0
