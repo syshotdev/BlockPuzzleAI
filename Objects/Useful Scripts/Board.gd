@@ -2,8 +2,8 @@ extends Node
 
 class_name Board
 
-const sizeX = 3
-const sizeY = 3
+const sizeX = 8
+const sizeY = 8
 
 var board : Array
 # Current thought is something like 

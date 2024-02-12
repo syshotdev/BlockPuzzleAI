@@ -63,12 +63,17 @@ func calculateRotatedBlocks():
 	for block0 in blockTypes:
 		# Array of blocks to be put into rotatedBlocks
 		var blockRotateds : Array
+		
+		blockRotateds.append(block0)
 		# Vars = block + degrees rotated
 		var block90 := MatrixOperations.rotateMatrixClockwise(block0)
+		if(block0 != block90):
+			blockRotateds.append(block90)
 		var block180 := MatrixOperations.rotateMatrixClockwise(block90)
+		if(block0 != block180):
+			blockRotateds.append(block90)
 		var block270 := MatrixOperations.rotateMatrixClockwise(block180)
+		if(block0 != block270):
+			blockRotateds.append(block90)
 		
-		# Was going to do some optimizations where arrays check each other to see if there are duplicates,
-		# But duplicates aren't gonna kill the game so whatever.
-		blockRotateds.append_array([block0, block90, block180, block270])
 		rotatedBlocks[block0] = blockRotateds

@@ -11,8 +11,9 @@ func _init():
 	
 	var memory_before = OS.get_static_memory_usage()
 	var boards := getPossibleBoards(board)
-	var memory_used = OS.get_static_memory_usage() - memory_before
-	print(memory_used)
+	var memory_used : float = OS.get_static_memory_usage() - memory_before
+	memory_used = memory_used / 1000 / 1000
+	print(str(memory_used) + " Mb")
 	print("Boards:" + str(boards.size()))
 
 
@@ -35,10 +36,9 @@ func getBoardsFromBlock(originBoard : Board, block : Array) -> Array[Board]:
 	var maxPos : Vector2i = (boardSize - blockSize)
 	
 	# From 0 to maxPos, every cell, check if can place and place block there.
-	for y in range(maxPos.y):
-		for x in range(maxPos.x):
-			# Exists because arrays start at 0
-			var actualPos := Vector2i(x, y) #- Vector2i(1, 1)
+	for y in range(maxPos.y + 1):
+		for x in range(maxPos.x + 1):
+			var actualPos := Vector2i(x, y) - Vector2i(1, 1)
 			# If can't place block here don't append new board.
 			if(!originBoard.isPlaceable(actualPos, block)):
 				continue
@@ -49,42 +49,3 @@ func getBoardsFromBlock(originBoard : Board, block : Array) -> Array[Board]:
 			boards.append(newBoard)
 	
 	return boards
-
-
-# Places the block on the top left corner, 
-# aka pos = top left corner of block
-func placeBlock(pos : Vector2i, block : Array):
-	var size : Vector2i = Vector2(block[0].size(), block.size())
-	var center : Vector2 = size/2
-	
-	if(!isPlaceable(pos, block)):
-		return false
-	
-	for y in range(pos.y, size.y + pos.y):
-		for x in range(pos.x, size.x + pos.x):
-			# If the cell at coords == 0, don't place.
-			if(block[y][x] == 0):
-				continue
-			
-			board.setCellAt(x, y, 1)
-	
-	return true
-
-
-# Checks if the block is placable at that place. (Top left = posStart.)
-func isPlaceable(posStart : Vector2i, block : Array):
-	var size : Vector2i = Vector2(block[0].size(), block.size())
-	var posEnd : Vector2i = posStart + size
-	
-	# For each position, check if board obstructs block.
-	# Range from pos start to pos end.
-	for y in range(posStart.y, posEnd.y):
-		for x in range(posStart.x, posEnd.x):
-			# If the cell at coords == 0, don't check to see if can place.
-			if(block[y][x] == 0):
-				continue
-			
-			if(board.getCellAt(x, y) != 0):
-				return false
-	
-	return true
