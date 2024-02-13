@@ -7,6 +7,10 @@ const shape_1x1 := [
 const shape_2x2 := [
 	[1,1],
 	[1,1]]
+const shape_2x3 := [
+	[1,1],
+	[1,1],
+	[1,1]]
 const shape_3x3 := [
 	[1,1,1],
 	[1,1,1],
@@ -19,9 +23,14 @@ const shape_perfectL := [
 	[1,0,0],
 	[1,0,0],
 	[1,1,1]] # Shape is L but both sides are equal
+const shape_smallL := [
+	[1,0],
+	[1,1]] # Shape is L but both sides are equal
 const shape_T := [
 	[1,1,1],
 	[0,1,0]]
+const shape_Ix2 := [
+	[1,1]]
 const shape_Ix3 := [
 	[1,1,1]]
 const shape_Ix4 := [
@@ -41,8 +50,10 @@ const shape_S := [
 var blockTypes = [
 	shape_1x1,
 	shape_2x2,
+	shape_2x3,
 	shape_3x3,
 	shape_perfectL,
+	shape_smallL,
 	shape_L,
 	shape_T,
 	shape_Z,
@@ -63,19 +74,23 @@ func _init():
 func calculateRotatedBlocks():
 	for block in blockTypes:
 		# Array of blocks to be put into rotatedBlocks
-		var blockRotateds : Array = []
-		var lastBlock : Array = block
-		
-		# Append the original block (Because it is a block)
-		blockRotateds.append(block)
-		
-		for i in range(3):
-			var rotatedBlock := MatrixOperations.rotateMatrixClockwise(lastBlock)
-			
-			# If block array doesn't have block, then add it.
-			if(!blockRotateds.has(rotatedBlock)):
-				blockRotateds.append(rotatedBlock)
-				lastBlock = rotatedBlock # Set the last block
-		
-		
+		var blockRotateds := genRotatedBlocks(block)
 		rotatedBlocks[block] = blockRotateds
+
+
+func genRotatedBlocks(block : Array) -> Array[Array]:
+	var blockRotateds : Array[Array] = []
+	var lastBlock : Array = block
+	
+	# Append the original block (Because it is a block)
+	blockRotateds.append(block)
+	
+	for i in range(3):
+		var rotatedBlock := MatrixOperations.rotateMatrixClockwise(lastBlock)
+		
+		# If block array doesn't have block, then add it.
+		if(!blockRotateds.has(rotatedBlock)):
+			blockRotateds.append(rotatedBlock)
+			lastBlock = rotatedBlock # Set the last block
+	
+	return blockRotateds

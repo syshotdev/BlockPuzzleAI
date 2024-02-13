@@ -4,7 +4,8 @@ class_name AI
 
 
 # Minimum score that the search should look for.
-const pruneScore : float = INF
+# 0 fastest, INF slowest.
+const pruneScore : float = 16
 
 var mainBoard : Board
 var blocks : Block
@@ -16,6 +17,8 @@ var totalPaths : int = 0
 func _init():
 	mainBoard = Board.new()
 	blocks = Block.new()
+	
+	var nextMove
 	
 	var memory_before = OS.get_static_memory_usage()
 	var score := maxMaxBlocks(mainBoard, -INF, [Block.shape_3x3,Block.shape_3x3,Block.shape_2x2])
@@ -36,7 +39,7 @@ func maxMaxBlocks(boardState : Board, alpha : float, blocksToUse : Array) -> flo
 	
 	
 	var bestScore := -INF
-	# For each block, get boards from a block and blocksToUse without that block (Because it's been used)
+	# For each block, get boards from a block, and from blocksToUse remove that block (Because it's been used)
 	for block in blocksToUse:
 		
 		var boards : Array[Board] = getBoardsFromBlock(boardState, block)
