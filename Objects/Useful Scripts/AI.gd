@@ -34,37 +34,27 @@ func maxMaxBlocks(boardState : Board, alpha : float, blocksToUse : Array) -> flo
 	
 	boardState.updateBoard()
 	
-	# For each blockToUse, generate boards from there, and remove that block from 
-	# the blocksToUse for that specific board maxMax
-	var blocksThatShouldBeRemoved : Dictionary # Key: board, Value: blockUsed
-	var boards : Array[Board]
-	for block in blocksToUse:
-		var newBoards := getBoardsFromBlock(boardState, block)
-		boards.append_array(newBoards)
-		
-		# The part that remembers what block the board last placed.
-		for board in newBoards:
-			blocksThatShouldBeRemoved[board] = block
 	
 	var bestScore := -INF
-	for board in boards:
-		# We have to keep track of the block that was placed in the current board,
-		# and remove it from the actualBlocksToUse perameter before sending this off again.
+	# For each block, get boards from a block and blocksToUse without that block (Because it's been used)
+	for block in blocksToUse:
+		
+		var boards : Array[Board] = getBoardsFromBlock(boardState, block)
 		var actualBlocksToUse : Array = blocksToUse.duplicate()
-		actualBlocksToUse.erase(blocksThatShouldBeRemoved[board])
+		actualBlocksToUse.erase(block)
 		
-		var evaluationScore := maxMaxBlocks(board, alpha, actualBlocksToUse)
-		
-		bestScore = max(evaluationScore, bestScore)
-		alpha = max(evaluationScore, alpha)
-		
-		# FOR DEBUG
-		totalPaths += boards.size()
-		
-		# If the score is above the prune score (basically minimum score), 
-		# break and stop looking because we've found the score that's good enough
-		if(pruneScore <= alpha):
-			break
+		for board in boards:
+			var evaluationScore := maxMaxBlocks(board, alpha, actualBlocksToUse)
+			
+			bestScore = max(evaluationScore, bestScore)
+			alpha = max(evaluationScore, alpha)
+			
+			# FOR DEBUG
+			totalPaths += boards.size()
+			# If the score is above the prune score (basically minimum score), 
+			# break and stop looking because we've found the score that's good enough
+			if(pruneScore <= alpha):
+				break
 	
 	return bestScore
 
