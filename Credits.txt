@@ -1,1 +1,2 @@
 I borrowed from https://github.com/jpcerrone/PokeTetris because similar system for coding
+ChatGPT because I didn't know how to make minmax algorithm, and it helped keep my sanity

@@ -65,6 +65,7 @@ var blockTypes = [
 
 
 var rotatedBlocks : Dictionary # Key: Const block, Value: Array of all rotated blocks (NO DUPLICATES)
+var allBlocks : Array # Array of every single block
 
 
 func _init():
@@ -76,6 +77,7 @@ func calculateRotatedBlocks():
 		# Array of blocks to be put into rotatedBlocks
 		var blockRotateds := genRotatedBlocks(block)
 		rotatedBlocks[block] = blockRotateds
+		allBlocks.append_array(blockRotateds)
 
 
 func genRotatedBlocks(block : Array) -> Array[Array]:

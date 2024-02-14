@@ -1,29 +1,25 @@
 extends Node2D
 
-@onready var ai : AI = AI.new()
-@onready var mainBoard : Board = Board.new()
+class_name Map
+
 @export var colorGrid : GridContainer
 
-func _ready():
-	mainBoard.placeBlock(Vector2i(2,2), Block.shape_1x1)
-	var blocksInQueue : Array = [Block.shape_3x3,Block.shape_3x3,Block.shape_2x2]
-	
-	# Blocks that are remaining in the queue (workaround for weird bug)
-	var blocksRemaining : Array = blocksInQueue.duplicate() 
-	
-	for block in blocksInQueue:
-		# Keep adding to the main board till blocks end
-		var move := calculateAIBestMove(mainBoard, blocksRemaining)
-		mainBoard.placeBlock(move.boardPosition, move.block)
-		blocksRemaining.erase(block)
-		#mainBoard.updateBoard()
-	
-	calculateGridOfColorRect(mainBoard)
+@onready var ai : AI = AI.new()
+
+var blocksRemaining : Array = []
 
 
-# Function to find best AI board from a certain list of blocks (Fit them in correctly)
+func getNextBlocks(number : int) -> Array:
+	var blocksToReturn : Array = []
+	for i in range(number): # Get x blocks
+		blocksToReturn.append(ai.blocks.allBlocks.pick_random())
+	
+	return blocksToReturn
+
+
+# Function to find best AI move from a certain list of blocks (Fit them in correctly)
 func calculateAIBestMove(boardState : Board, blocksToUse : Array) -> Move:
-	var bestMove : Move = null
+	var bestMove : Move = Move.new(Vector2i(0,0), blocksToUse[0])
 	var bestScore : float = -INF
 	
 	# For every block, find which block is best for board.
@@ -38,16 +34,21 @@ func calculateAIBestMove(boardState : Board, blocksToUse : Array) -> Move:
 			board.placeBlock(move.boardPosition, move.block) # Create board and place move
 			
 			var score := ai.maxMaxBlocks(board, -INF, blocksInOrder)
+			board.free() # Prevent memory leak
 			
 			if(score > bestScore):
-				bestMove = move
+				bestMove = Move.new(move.boardPosition, move.block) # Because .duplicate doesn't work
 				bestScore = score
+			
+			move.free()
+	
+	blocksRemaining.erase(bestMove.block) # Remove things from blocks remaining when things
 	
 	return bestMove
 
-
+# For displaying the board
 func calculateGridOfColorRect(board : Board):
-	# Remove children
+	# Remove children (to prevent memory leak)
 	for child in colorGrid.get_children():
 		child.queue_free()
 	

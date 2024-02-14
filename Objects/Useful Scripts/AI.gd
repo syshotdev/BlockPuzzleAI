@@ -7,11 +7,14 @@ class_name AI
 # 0 fastest, INF slowest.
 const pruneScore : float = 16
 
+var blocks : Block
+
 # How many time minmax
 var pathsPruned : int = 0
 var totalPaths : int = 0
 
-
+func _init():
+	blocks = Block.new() # Generate blocks with rotations
 
 # maxMax but only with specified blocks in queue, instead of just trying all possible combinations.
 func maxMaxBlocks(boardState : Board, alpha : float, blocksToUse : Array) -> float:
@@ -21,10 +24,12 @@ func maxMaxBlocks(boardState : Board, alpha : float, blocksToUse : Array) -> flo
 	
 	boardState.updateBoard()
 	
+	var totalMoves : int = 0 # REMOVE LATER, FOR TESTING
 	var bestScore := -INF
 	# For each block, get moves from a block, and from blocksToUse remove that block (Because it's been used)
 	for block in blocksToUse:
 		var moves : Array[Move] = getMovesFromBlock(boardState, block)
+		totalMoves += moves.size()
 		var actualBlocksToUse : Array = blocksToUse.duplicate()
 		actualBlocksToUse.erase(block)
 		
@@ -32,6 +37,8 @@ func maxMaxBlocks(boardState : Board, alpha : float, blocksToUse : Array) -> flo
 			var board : Board = Board.new(boardState)
 			board.placeBlock(move.boardPosition, move.block)
 			var evaluationScore := maxMaxBlocks(board, alpha, actualBlocksToUse)
+			
+			board.free() # Prevent memory leak
 			
 			bestScore = max(evaluationScore, bestScore)
 			alpha = max(evaluationScore, alpha)
@@ -42,45 +49,12 @@ func maxMaxBlocks(boardState : Board, alpha : float, blocksToUse : Array) -> flo
 			# break and stop looking because we've found the score that's good enough
 			if(pruneScore <= alpha):
 				break
-	
-	return bestScore
-
-
-# Minimax but only maxxing score
-# Might remove this in future because currently not using and just hassle to refactor
-func maxMax(boardState : Board, alpha : float, depth : int) -> float:
-	# If depth reached, stop calculating.
-	if(depth <= 0):
-		return boardState.calculateScore()
-	
-	boardState.updateBoard()
-	
-	# Get all moves.
-	var moves := getPossibleMovesFromBlocks(boardState, blocks.blockTypes)
-	
-	var bestScore := -INF
-	# For each move, find the best score.
-	for i in range(moves.size()):
-		var move := moves[i]
 		
-		var generatedBoard : Board = Board.new(boardState).placeBlock(move.boardPosition, move.block)
-		var evaluationScore := maxMax(generatedBoard, alpha, depth - 1)
-		generatedBoard.free() # Free so no memory leak
-		
-		bestScore = max(evaluationScore, bestScore)
-		alpha = max(evaluationScore, alpha)
-		
-		# FOR DEBUG
-		totalPaths += moves.size()
-		
-		# If the score is above the prune score (basically minimum score), 
-		# break and stop looking because we've found the score that's good enough
-		if(pruneScore <= alpha):
-			pathsPruned += moves.size() - i
-			break
+		for move in moves:
+			move.free()
 	
-	for move in moves:
-		move.free()
+	if(totalMoves <= 0):
+		push_warning("Moves possible are 0.")
 	
 	return bestScore
 
@@ -88,9 +62,8 @@ func maxMax(boardState : Board, alpha : float, depth : int) -> float:
 func getPossibleMovesFromBlocks(boardState : Board, blocksToUse : Array) -> Array[Move]:
 	var moves : Array[Move] = []
 	
-	for key in blocksToUse:
-		for block in blocks.rotatedBlocks[key]:
-			moves.append_array(getMovesFromBlock(boardState, block))
+	for block in blocks.allBlocks:
+		moves.append_array(getMovesFromBlock(boardState, block))
 	
 	return moves
 
