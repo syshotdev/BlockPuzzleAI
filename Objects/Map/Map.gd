@@ -54,20 +54,13 @@ func calculateGridOfColorRect(board : Board):
 	
 	colorGrid.columns = board.sizeX
 	
-	# Init color with default color
-	var color : Color = Color(0,0,0,1)
-	
 	# For every row and cell, get cell and check if 0.
 	# Then add to colorGrid
 	for row in range(board.sizeY):
 		for cell in range(board.sizeX):
 			var number = board.getCellAt(cell, row)
 			
-			# If number empty, show nothing, else show something
-			if(number == 0):
-				color = Color(0,0,0,1)
-			else:
-				color = Color.CORNFLOWER_BLUE
+			var color = GameColors.getColorFromEnum(number) # Number == enum
 			
 			var colorRect = createColorRect(Vector2(16,16), color)
 			colorGrid.add_child(colorRect)

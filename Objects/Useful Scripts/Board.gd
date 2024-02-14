@@ -36,7 +36,7 @@ func placeBlock(pos : Vector2i, block : Array):
 			if(block[y][x] == 0):
 				continue
 			
-			setCellAt(pos.x + x, pos.y + y, 1)
+			setCellAt(pos.x + x, pos.y + y, block[y][x])
 
 # Updates and removes lines needing to be removed, and gives score :)
 func updateBoard():

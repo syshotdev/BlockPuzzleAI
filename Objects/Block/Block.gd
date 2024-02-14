@@ -2,46 +2,46 @@ extends Node2D
 
 class_name Block
 
-const shape_1x1 := [
+var shape_1x1 := [
 	[1]]
-const shape_2x2 := [
+var shape_2x2 := [
 	[1,1],
 	[1,1]]
-const shape_2x3 := [
+var shape_2x3 := [
 	[1,1],
 	[1,1],
 	[1,1]]
-const shape_3x3 := [
+var shape_3x3 := [
 	[1,1,1],
 	[1,1,1],
 	[1,1,1]]
-const shape_L := [
+var shape_L := [
 	[1,0],
 	[1,0],
 	[1,1]]
-const shape_perfectL := [
+var shape_perfectL := [
 	[1,0,0],
 	[1,0,0],
 	[1,1,1]] # Shape is L but both sides are equal
-const shape_smallL := [
+var shape_smallL := [
 	[1,0],
 	[1,1]] # Shape is L but both sides are equal
-const shape_T := [
+var shape_T := [
 	[1,1,1],
 	[0,1,0]]
-const shape_Ix2 := [
+var shape_Ix2 := [
 	[1,1]]
-const shape_Ix3 := [
+var shape_Ix3 := [
 	[1,1,1]]
-const shape_Ix4 := [
+var shape_Ix4 := [
 	[1,1,1,1]]
-const shape_Ix5 := [
+var shape_Ix5 := [
 	[1,1,1,1,1]]
-const shape_Z := [
+var shape_Z := [
 	[0,1],
 	[1,1],
 	[1,0]]
-const shape_S := [
+var shape_S := [
 	[1,0],
 	[1,1],
 	[0,1]]
@@ -70,14 +70,34 @@ var allBlocks : Array # Array of every single block
 
 func _init():
 	calculateRotatedBlocks()
+	genBlockColors()
 
 
+# Gives each seperate block a color
+func genBlockColors():
+	for block in allBlocks:
+		var color : GameColors.colors = GameColors.colors.values().pick_random()
+		setBlockColor(block, color)
+
+
+func setBlockColor(block : Array, color : GameColors.colors):
+	for y in block.size():
+		for x in block[0].size():
+			
+			if (block[y][x] == 0): # Don't give 0 a random color
+				continue
+			
+			block[y][x] = color # Else set to color
+
+
+# Calculates the rotated blocks for each block, and gets rid of duplicates.
 func calculateRotatedBlocks():
 	for block in blockTypes:
 		# Array of blocks to be put into rotatedBlocks
 		var blockRotateds := genRotatedBlocks(block)
 		rotatedBlocks[block] = blockRotateds
 		allBlocks.append_array(blockRotateds)
+
 
 
 func genRotatedBlocks(block : Array) -> Array[Array]:
