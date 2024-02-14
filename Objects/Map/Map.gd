@@ -5,36 +5,45 @@ extends Node2D
 @export var colorGrid : GridContainer
 
 func _ready():
+	mainBoard.placeBlock(Vector2i(2,2), Block.shape_1x1)
 	var blocksInQueue : Array = [Block.shape_3x3,Block.shape_3x3,Block.shape_2x2]
+	
+	# Blocks that are remaining in the queue (workaround for weird bug)
+	var blocksRemaining : Array = blocksInQueue.duplicate() 
 	
 	for block in blocksInQueue:
 		# Keep adding to the main board till blocks end
-		mainBoard = calculateAIBestBoard(mainBoard, blocksInQueue)
-		blocksInQueue.erase(block)
+		var move := calculateAIBestMove(mainBoard, blocksRemaining)
+		mainBoard.placeBlock(move.boardPosition, move.block)
+		blocksRemaining.erase(block)
+		#mainBoard.updateBoard()
 	
 	calculateGridOfColorRect(mainBoard)
 
 
 # Function to find best AI board from a certain list of blocks (Fit them in correctly)
-func calculateAIBestBoard(boardState : Board, blocksToUse : Array) -> Board:
-	var bestBoard : Board = null
+func calculateAIBestMove(boardState : Board, blocksToUse : Array) -> Move:
+	var bestMove : Move = null
 	var bestScore : float = -INF
 	
-	# For every block, find which board is best for all of them.
+	# For every block, find which block is best for board.
 	for block in blocksToUse:
 		# Remove the block we just used (I duplicated this code from AI script)
 		var blocksInOrder : Array = blocksToUse.duplicate()
 		blocksInOrder.erase(block)
 		
 		# For every board that this block generates, find best one.
-		for board in ai.getPossibleBoardsFromBlocks(boardState, [block]):
+		for move in ai.getMovesFromBlock(boardState, block):
+			var board := Board.new(boardState)
+			board.placeBlock(move.boardPosition, move.block) # Create board and place move
+			
 			var score := ai.maxMaxBlocks(board, -INF, blocksInOrder)
 			
 			if(score > bestScore):
-				bestBoard = board
+				bestMove = move
 				bestScore = score
 	
-	return bestBoard
+	return bestMove
 
 
 func calculateGridOfColorRect(board : Board):

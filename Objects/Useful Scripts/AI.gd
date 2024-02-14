@@ -7,15 +7,10 @@ class_name AI
 # 0 fastest, INF slowest.
 const pruneScore : float = 16
 
-var blocks : Block
-
 # How many time minmax
 var pathsPruned : int = 0
 var totalPaths : int = 0
 
-func _init():
-	blocks = Block.new() # Generate blocks with rotations
-	print(str(pathsPruned) + " Paths Pruned, " + str(totalPaths) + " Total Paths")
 
 
 # maxMax but only with specified blocks in queue, instead of just trying all possible combinations.
@@ -26,23 +21,23 @@ func maxMaxBlocks(boardState : Board, alpha : float, blocksToUse : Array) -> flo
 	
 	boardState.updateBoard()
 	
-	
 	var bestScore := -INF
-	# For each block, get boards from a block, and from blocksToUse remove that block (Because it's been used)
+	# For each block, get moves from a block, and from blocksToUse remove that block (Because it's been used)
 	for block in blocksToUse:
-		# Dejavu
-		var boards : Array[Board] = getBoardsFromBlock(boardState, block)
+		var moves : Array[Move] = getMovesFromBlock(boardState, block)
 		var actualBlocksToUse : Array = blocksToUse.duplicate()
 		actualBlocksToUse.erase(block)
 		
-		for board in boards:
+		for move in moves:
+			var board : Board = Board.new(boardState)
+			board.placeBlock(move.boardPosition, move.block)
 			var evaluationScore := maxMaxBlocks(board, alpha, actualBlocksToUse)
 			
 			bestScore = max(evaluationScore, bestScore)
 			alpha = max(evaluationScore, alpha)
 			
 			# FOR DEBUG
-			totalPaths += boards.size()
+			totalPaths += moves.size()
 			# If the score is above the prune score (basically minimum score), 
 			# break and stop looking because we've found the score that's good enough
 			if(pruneScore <= alpha):
@@ -52,6 +47,7 @@ func maxMaxBlocks(boardState : Board, alpha : float, blocksToUse : Array) -> flo
 
 
 # Minimax but only maxxing score
+# Might remove this in future because currently not using and just hassle to refactor
 func maxMax(boardState : Board, alpha : float, depth : int) -> float:
 	# If depth reached, stop calculating.
 	if(depth <= 0):
@@ -59,55 +55,48 @@ func maxMax(boardState : Board, alpha : float, depth : int) -> float:
 	
 	boardState.updateBoard()
 	
-	# Get all boards.
-	var boards := getPossibleBoards(boardState)
+	# Get all moves.
+	var moves := getPossibleMovesFromBlocks(boardState, blocks.blockTypes)
 	
 	var bestScore := -INF
-	# For each board, find the best score.
-	for i in range(boards.size()):
-		var board := boards[i]
-		var evaluationScore := maxMax(board, alpha, depth - 1)
+	# For each move, find the best score.
+	for i in range(moves.size()):
+		var move := moves[i]
+		
+		var generatedBoard : Board = Board.new(boardState).placeBlock(move.boardPosition, move.block)
+		var evaluationScore := maxMax(generatedBoard, alpha, depth - 1)
+		generatedBoard.free() # Free so no memory leak
 		
 		bestScore = max(evaluationScore, bestScore)
 		alpha = max(evaluationScore, alpha)
 		
 		# FOR DEBUG
-		totalPaths += boards.size()
+		totalPaths += moves.size()
 		
 		# If the score is above the prune score (basically minimum score), 
 		# break and stop looking because we've found the score that's good enough
 		if(pruneScore <= alpha):
-			pathsPruned += boards.size() - i
+			pathsPruned += moves.size() - i
 			break
 	
-	for board in boards:
-		board.free()
+	for move in moves:
+		move.free()
 	
 	return bestScore
 
-# Uses only the blocks provided to generate more positions/board states
-func getPossibleBoardsFromBlocks(boardState : Board, blocksToUse : Array) -> Array[Board]:
-	var boards : Array[Board] = []
+# Uses only the blocks provided to generate more positions/moves
+func getPossibleMovesFromBlocks(boardState : Board, blocksToUse : Array) -> Array[Move]:
+	var moves : Array[Move] = []
 	
 	for key in blocksToUse:
 		for block in blocks.rotatedBlocks[key]:
-			boards.append_array(getBoardsFromBlock(boardState, block))
+			moves.append_array(getMovesFromBlock(boardState, block))
 	
-	return boards
-
-# Gets ALL of the possible blocks in a specified board state
-func getPossibleBoards(boardState : Board) -> Array[Board]:
-	var boards : Array[Board] = []
-	
-	for key in blocks.rotatedBlocks.keys():
-		for block in blocks.rotatedBlocks[key]:
-			boards.append_array(getBoardsFromBlock(boardState, block))
-	
-	return boards
+	return moves
 
 # For one block, get every board that that block fits in.
-func getBoardsFromBlock(originBoard : Board, block : Array) -> Array[Board]:
-	var boards : Array[Board] = []
+func getMovesFromBlock(originBoard : Board, block : Array) -> Array[Move]:
+	var moves : Array[Move] = []
 	
 	var blockSize = Vector2i(block[0].size(), block.size())
 	var boardSize = Vector2i(originBoard.sizeX, originBoard.sizeY)
@@ -118,13 +107,12 @@ func getBoardsFromBlock(originBoard : Board, block : Array) -> Array[Board]:
 	for y in range(maxPos.y):
 		for x in range(maxPos.x):
 			var actualPos := Vector2i(x, y)
-			# If can't place block here don't append new board.
+			# If can't place block here don't make move.
 			if(!originBoard.isPlaceable(actualPos, block)):
 				continue
 			
-			# Create board and place block
-			var newBoard : Board = Board.new(originBoard)
-			newBoard.placeBlock(actualPos, block)
-			boards.append(newBoard)
+			# Create move and append to moves
+			var move : Move = Move.new(actualPos, block)
+			moves.append(move)
 	
-	return boards
+	return moves
