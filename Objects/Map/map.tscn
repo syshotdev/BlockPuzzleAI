@@ -2,5 +2,13 @@
 
 [ext_resource type="Script" path="res://Objects/Map/Map.gd" id="1_qlaw2"]
 
-[node name="Map" type="Node2D"]
+[node name="Map" type="Node2D" node_paths=PackedStringArray("colorGrid")]
 script = ExtResource("1_qlaw2")
+colorGrid = NodePath("GridContainer")
+
+[node name="GridContainer" type="GridContainer" parent="."]
+offset_left = 200.0
+offset_top = 200.0
+offset_right = 200.0
+offset_bottom = 200.0
+size_flags_horizontal = 4

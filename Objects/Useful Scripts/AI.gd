@@ -7,7 +7,6 @@ class_name AI
 # 0 fastest, INF slowest.
 const pruneScore : float = 16
 
-var mainBoard : Board
 var blocks : Block
 
 # How many time minmax
@@ -15,17 +14,7 @@ var pathsPruned : int = 0
 var totalPaths : int = 0
 
 func _init():
-	mainBoard = Board.new()
-	blocks = Block.new()
-	
-	var nextMove
-	
-	var memory_before = OS.get_static_memory_usage()
-	var score := maxMaxBlocks(mainBoard, -INF, [Block.shape_3x3,Block.shape_3x3,Block.shape_2x2])
-	var memory_used : float = OS.get_static_memory_usage() - memory_before
-	memory_used = memory_used / 1000 / 1000
-	print(str(memory_used) + " Mb")
-	print(score)
+	blocks = Block.new() # Generate blocks with rotations
 	print(str(pathsPruned) + " Paths Pruned, " + str(totalPaths) + " Total Paths")
 
 
@@ -41,7 +30,7 @@ func maxMaxBlocks(boardState : Board, alpha : float, blocksToUse : Array) -> flo
 	var bestScore := -INF
 	# For each block, get boards from a block, and from blocksToUse remove that block (Because it's been used)
 	for block in blocksToUse:
-		
+		# Dejavu
 		var boards : Array[Board] = getBoardsFromBlock(boardState, block)
 		var actualBlocksToUse : Array = blocksToUse.duplicate()
 		actualBlocksToUse.erase(block)

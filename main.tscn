@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://bcvuma70ugl1v"]
+[gd_scene load_steps=3 format=3 uid="uid://bcvuma70ugl1v"]
 
 [ext_resource type="Script" path="res://Main.gd" id="1_fw6xq"]
+[ext_resource type="PackedScene" uid="uid://dlcsv7gnk80an" path="res://Objects/Map/map.tscn" id="2_rdwk1"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_fw6xq")
+
+[node name="Map" parent="." instance=ExtResource("2_rdwk1")]
