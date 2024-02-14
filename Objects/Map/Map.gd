@@ -3,6 +3,7 @@ extends Node2D
 class_name Map
 
 @export var colorGrid : GridContainer
+@export var blockGrids : VBoxContainer
 
 @onready var ai : AI = AI.new()
 
@@ -13,6 +14,16 @@ func getNextBlocks(number : int) -> Array:
 	var blocksToReturn : Array = []
 	for i in range(number): # Get x blocks
 		blocksToReturn.append(ai.blocks.allBlocks.pick_random())
+	
+	for child in blockGrids.get_children():
+		child.queue_free()
+	
+	
+	for block in blocksToReturn:
+		var blockGrid := calculateBlockGrid(block) # MAKE BLOCKS 5x5 SQUARES
+		blockGrids.add_child(blockGrid)
+		blockGrids.add_spacer(false)
+	
 	
 	return blocksToReturn
 
@@ -58,12 +69,27 @@ func calculateGridOfColorRect(board : Board):
 	# Then add to colorGrid
 	for row in range(board.sizeY):
 		for cell in range(board.sizeX):
-			var number = board.getCellAt(cell, row)
+			var number : int = board.getCellAt(cell, row)
 			
 			var color = GameColors.getColorFromEnum(number) # Number == enum
-			
-			var colorRect = createColorRect(Vector2(16,16), color)
+			var colorRect := createColorRect(Vector2(16,16), color)
 			colorGrid.add_child(colorRect)
+
+# Displaying the next moves
+func calculateBlockGrid(block : Array) -> GridContainer:
+	var container : GridContainer = GridContainer.new()
+	container.columns = block[0].size()
+	
+	# For every cell in block,
+	for row in range(block.size()):
+		for cell in range(block[0].size()):
+			var number : int = block[row][cell]
+			
+			var color = GameColors.getColorFromEnum(number) # Number == enum
+			var colorRect := createColorRect(Vector2(16,16), color)
+			container.add_child(colorRect)
+	
+	return container
 
 
 func createColorRect(size : Vector2, color : Color) -> ColorRect:

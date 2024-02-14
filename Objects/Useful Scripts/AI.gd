@@ -24,12 +24,10 @@ func maxMaxBlocks(boardState : Board, alpha : float, blocksToUse : Array) -> flo
 	
 	boardState.updateBoard()
 	
-	var totalMoves : int = 0 # REMOVE LATER, FOR TESTING
 	var bestScore := -INF
 	# For each block, get moves from a block, and from blocksToUse remove that block (Because it's been used)
 	for block in blocksToUse:
 		var moves : Array[Move] = getMovesFromBlock(boardState, block)
-		totalMoves += moves.size()
 		var actualBlocksToUse : Array = blocksToUse.duplicate()
 		actualBlocksToUse.erase(block)
 		
@@ -43,20 +41,32 @@ func maxMaxBlocks(boardState : Board, alpha : float, blocksToUse : Array) -> flo
 			bestScore = max(evaluationScore, bestScore)
 			alpha = max(evaluationScore, alpha)
 			
-			# FOR DEBUG
-			totalPaths += moves.size()
 			# If the score is above the prune score (basically minimum score), 
 			# break and stop looking because we've found the score that's good enough
 			if(pruneScore <= alpha):
 				break
 		
-		for move in moves:
-			move.free()
-	
-	if(totalMoves <= 0):
-		push_warning("Moves possible are 0.")
+		freeArray(moves) # Prevent memory leak
 	
 	return bestScore
+
+# Did the game end?
+func isTerminatingState(boardState : Board, blocksToUse) -> bool:
+	var moves : Array[Move]
+	
+	for block in blocksToUse:
+		moves = getMovesFromBlock(boardState, block)
+		
+		if(moves.size() > 0):
+			freeArray(moves)
+			return false
+	
+	return true
+
+# Frees an array of objects.
+func freeArray(array : Array):
+	for object in array:
+		object.free()
 
 # Uses only the blocks provided to generate more positions/moves
 func getPossibleMovesFromBlocks(boardState : Board, blocksToUse : Array) -> Array[Move]:
@@ -68,11 +78,11 @@ func getPossibleMovesFromBlocks(boardState : Board, blocksToUse : Array) -> Arra
 	return moves
 
 # For one block, get every board that that block fits in.
-func getMovesFromBlock(originBoard : Board, block : Array) -> Array[Move]:
+func getMovesFromBlock(boardState : Board, block : Array) -> Array[Move]:
 	var moves : Array[Move] = []
 	
 	var blockSize = Vector2i(block[0].size(), block.size())
-	var boardSize = Vector2i(originBoard.sizeX, originBoard.sizeY)
+	var boardSize = Vector2i(boardState.sizeX, boardState.sizeY)
 	# Offset the search by size, because we place top left corner and block size exists.
 	var maxPos : Vector2i = (boardSize - blockSize) + Vector2i(1, 1)
 	
@@ -81,7 +91,7 @@ func getMovesFromBlock(originBoard : Board, block : Array) -> Array[Move]:
 		for x in range(maxPos.x):
 			var actualPos := Vector2i(x, y)
 			# If can't place block here don't make move.
-			if(!originBoard.isPlaceable(actualPos, block)):
+			if(!boardState.isPlaceable(actualPos, block)):
 				continue
 			
 			# Create move and append to moves

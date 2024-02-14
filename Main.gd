@@ -17,6 +17,11 @@ func renewMapBlocks():
 func stepMap():
 	mainBoard.updateBoard() # Updating first so we can see what AI is generating
 	
+	if(map.ai.isTerminatingState(mainBoard, map.blocksRemaining)):
+		printerr("GAME ENDED!")
+		return
+	
+	
 	var move : Move = map.calculateAIBestMove(mainBoard, map.blocksRemaining)
 	mainBoard.placeBlock(move.boardPosition, move.block)
 	move.free() # Prevent memory leak
